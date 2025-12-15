@@ -3,7 +3,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
-require_once "config/conexion.php"; // <-- incluir conexión correctamente
+require_once "../confi/conexion.php";
 
 $json = file_get_contents("php://input");
 $data = json_decode($json, true);
@@ -23,7 +23,11 @@ $stmt = $conexion->prepare("
     WHERE nombre_productor = ? AND fecha_aplicacion = ?
     LIMIT 1
 ");
-$stmt->bind_param("ss", $productor["nombre_productor"], $productor["fecha_aplicacion"]);
+$stmt->bind_param(
+    "ss",
+    $productor["nombre_productor"],
+    $productor["fecha_aplicacion"]
+);
 $stmt->execute();
 $stmt->store_result();
 
@@ -32,6 +36,7 @@ if ($stmt->num_rows > 0) {
     $stmt->fetch();
     $stmt->close();
 } else {
+
     // PASO 2: INSERTAR NUEVO PRODUCTOR
     $query = "
         INSERT INTO productores (
@@ -44,34 +49,33 @@ if ($stmt->num_rows > 0) {
             ninos, ninas, tiene_telefono,
             tiene_radio, recibio_apoyo,
             apoyo_cual
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     ";
 
     $stmt2 = $conexion->prepare($query);
-$stmt2->bind_param(
-    "sssssssissiiiiiiiiss",
-    $productor["estado"],
-    $productor["municipio"],
-    $productor["localidad"],
-    $productor["fecha_aplicacion"],
-    $productor["hora_aplicacion"],
-    $productor["nombre_encuestador"],
-    $productor["nombre_productor"],
-    $productor["sexo"],
-    $productor["edad"],
-    $productor["escolaridad"],
-    $productor["tiempo_dedicado_anios"],
-    $productor["num_personas_hogar"],
-    $productor["hombres_adultos"],
-    $productor["mujeres_adultas"],
-    $productor["ninos"],
-    $productor["ninas"],
-    $productor["tiene_telefono"],
-    $productor["tiene_radio"],
-    $productor["recibio_apoyo"],
-    $productor["apoyo_cual"]
-);
-
+    $stmt2->bind_param(
+        "sssssssissiiiiiiiiiis",
+        $productor["estado"],
+        $productor["municipio"],
+        $productor["localidad"],
+        $productor["fecha_aplicacion"],
+        $productor["hora_aplicacion"],
+        $productor["nombre_encuestador"],
+        $productor["nombre_productor"],
+        $productor["sexo"],
+        $productor["edad"],
+        $productor["escolaridad"],
+        $productor["tiempo_dedicado_anios"],
+        $productor["num_personas_hogar"],
+        $productor["hombres_adultos"],
+        $productor["mujeres_adultas"],
+        $productor["ninos"],
+        $productor["ninas"],
+        $productor["tiene_telefono"],
+        $productor["tiene_radio"],
+        $productor["recibio_apoyo"],
+        $productor["apoyo_cual"]
+    );
 
     if (!$stmt2->execute()) {
         echo json_encode(["success" => false, "error" => "Error al insertar productor"]);
@@ -97,6 +101,7 @@ $stmt3->close();
 
 // PASO 4: GUARDAR PREGUNTAS + RESPUESTAS
 foreach ($preguntas as $p) {
+
     // 1) Insertar encuestas_preguntas
     $query4 = "
         INSERT INTO encuestas_preguntas (
@@ -110,7 +115,7 @@ foreach ($preguntas as $p) {
         $id_encuesta,
         $p["id_pregunta"],
         $p["texto_pregunta"],
-        $p["tipo_pregunta"],
+        $p["tipo"],
         $p["id_dimension"]
     );
 
