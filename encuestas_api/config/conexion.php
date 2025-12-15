@@ -1,19 +1,14 @@
 <?php
-// encuestas_api/config/conexion.php
-// Propósito: conexión a la base de datos para los endpoints de la API. Define las
-// credenciales y crea la conexión mysqli en la variable `$conexion` (nótese la
-// diferencia con `$conn` usado en el root de la app). Incluir con
-// `require_once 'config/conexion.php'` desde los archivos de `encuestas_api/`.
-// NOTA: mantener credenciales fuera del repo para entornos de producción.
+$DB_HOST = '127.0.0.1';
+$DB_USER = 'root';
+$DB_PASS = ''; // cambia si tienes contraseña
+$DB_NAME = 'encuesta_db';
 
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "encuesta_db";
-
-$conexion = new mysqli($host, $user, $pass, $db);
-
-if ($conexion->connect_error) {
-    die("Error de conexión: " . $conexion->connect_error);
+$conn = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+if ($conn->connect_error) {
+  http_response_code(500);
+  header('Content-Type: application/json; charset=UTF-8');
+  echo json_encode(['error' => 'DB connection failed: ' . $conn->connect_error]);
+  exit;
 }
-?>
+$conn->set_charset('utf8mb4');
